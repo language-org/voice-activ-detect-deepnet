@@ -4,6 +4,10 @@ author: steeve LAQUITAINE
 
 date: 28/08/2021
 
+[TODO]: add table of content  
+
+[TODO]: add file structure  
+
 # Setup development environment
 
 * `VSCODE`: coding in an integrated development environment
@@ -49,3 +53,27 @@ git push -u origin master
   * develop branch would be our `integration` branch (for continuous integration and testing)
 
 * We will keep track of our commit and branch workflow with `git-graph` ([TODO] add snapshot of commit DAG)
+
+
+# Dataset
+
+## Data augmentation
+
+We can use the pure speech and noise corpora below for speech vs. silence classes. We can also augment pure 
+speech dataset by adding noisy speech data created by summing speech and noise data.
+
+* `TIMIT` corpus for clean speech (1)
+  * license: ([TODO]: check)
+* `QUT- NOISE `: corpus of noise (1)
+    * license: CC-BY-SA ([TODO]: check)
+
+# References
+
+*note: references are formatted according to the Amercian Psychological Association (APA) style*
+
+(1) Dean, D., Sridharan, S., Vogt, R., & Mason, M. (2010). The QUT-NOISE-TIMIT corpus for evaluation of voice activity detection algorithms. 
+In Proceedings of the 11th Annual Conference of the International Speech Communication Association (pp. 3110-3113). International Speech 
+Communication Association.
+
+
+
