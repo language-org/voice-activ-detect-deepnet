@@ -129,6 +129,10 @@ class DataEng:
 
 if __name__ == "__main__":
 
+
+    # preprocessing
+    TIMESTEPS = 1
+    
     # ETL --------------------------------------------
 
     # read and sync audio and labels
