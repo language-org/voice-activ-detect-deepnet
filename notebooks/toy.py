@@ -13,10 +13,17 @@ import scipy.io.wavfile
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+from matplotlib import pyplot as plt
+import time
+from sklearn.metrics import (precision_score, recall_score, f1_score, confusion_matrix)
 
 # [TODO]: add to config
 AUDIO_FILE = os.path.abspath("data/01_raw/vad_data/19-198-0003.wav")
 LABEL_FILE = os.path.abspath("data/01_raw/vad_data/19-198-0003.json")
+
+# ensure reproducbikity
+np.random.seed(0)
+
 
 class Etl:
     @staticmethod
@@ -140,8 +147,38 @@ class DataEng:
         Y = Y[timesteps+1:]
         return X, Y
 
+class Validation:
+    @staticmethod      
+    def plot_predictions(preds, Y_test, n_sample):
+
+        # plot predictions
+        f, (ax1, ax2) = plt.subplots(2, 1, sharey=True)
+        ax1.plot(preds[:n_sample],'r-.')
+        
+        # plot ground truth
+        ax2.plot(Y_test[:n_sample], 'b-.')
+        plt.show()
+
+    @staticmethod      
+    def eval_model(Y_test, pred_test):
+
+        LABELS =[False, True]
+
+        precision = precision_score(Y_test, pred_test, average="binary", pos_label=1)
+        recall = recall_score(Y_test, pred_test, average="binary", pos_label=1)
+        f1 = f1_score(Y_test, pred_test, average="binary", pos_label=1)
+        confusion = confusion_matrix(Y_test, pred_test, labels=LABELS)
+
+        return {
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+            "confusion": confusion,
+        }
 
 if __name__ == "__main__":
+
+    tic = time.time()
 
     # PARAMETERS --------------------------------------------
     # preprocessing
@@ -226,3 +263,13 @@ if __name__ == "__main__":
     preds = np.argmax(predictions_proba, axis=1).astype(int)
     print(predictions_proba)
     print(preds)
+
+    # VALIDATION  ------------------------------------
+
+    # plot predictions
+    # Validation.plot_predictions(preds, Y_test[:,1], n_sample=100)
+
+    # eval model
+    perfs = Validation.eval_model(Y_test[:,1], preds)
+    print(perfs)
+    print(time.time() - tic, "secs")
