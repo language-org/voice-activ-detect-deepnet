@@ -104,7 +104,7 @@ class DataEng:
         Y_train = Y[:n_train]
         Y_test = Y[n_train:]
         return X_train, X_test, Y_train, Y_test
-        
+
     @staticmethod      
     def reshape_inputs(X, Y, timesteps):
         """[summary]
@@ -150,6 +150,8 @@ if __name__ == "__main__":
 
     # mdoel
     SPLIT_FRAC = 0.5
+    MODEL_SEED = 0
+    OUT_ACTIVATION = "sigmoid"
 
     # ETL --------------------------------------------
 
@@ -193,3 +195,14 @@ if __name__ == "__main__":
     """    
     X_train, X_test, Y_train, Y_test = DataEng.split(X, Y, frac=SPLIT_FRAC)
 
+
+    # MODEL TRAIN ------------------------------------
+
+    # set seed before instantiation
+    # for reproducibility
+    tf.random.set_seed(MODEL_SEED)
+
+    # design model architecture
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.GRU(4))
+    model.add(tf.keras.layers.Dense(N_CLASSES, activation=OUT_ACTIVATION))
