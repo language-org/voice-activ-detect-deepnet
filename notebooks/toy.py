@@ -93,7 +93,7 @@ class Etl:
 
 if __name__ == "__main__":
 
-    # RAW --------------------------------------------
+    # ETL --------------------------------------------
 
     # read and sync audio and labels
     audio = Etl.read_X()
@@ -101,3 +101,12 @@ if __name__ == "__main__":
     audio, label = Etl.sync_audio_and_labels(audio, label)
     ts = audio["data"]
     Y = label
+
+    # PREPROCESSING -----------------------------------
+
+    """
+    ------ Encode as 32 bits floats ------
+    Prerequisite for tensorflow model training
+    """
+    ts = ts.astype('float32')
+    Y = Y.astype('float32')
