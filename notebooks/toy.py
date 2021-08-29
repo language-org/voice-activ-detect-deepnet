@@ -215,3 +215,14 @@ if __name__ == "__main__":
     # compile and train train
     model.compile(loss=LOSS, optimizer=OPTIM)
     model.fit(X_train, Y_train, epochs=EPOCH, batch_size=BATCH_SIZE, verbose=VERBOSE)
+
+
+    # INFERENCE ------------------------------------
+
+    # calculate each label proba
+    predictions_proba = model.predict(X_test)
+    
+    # make predictions
+    preds = np.argmax(predictions_proba, axis=1).astype(int)
+    print(predictions_proba)
+    print(preds)
