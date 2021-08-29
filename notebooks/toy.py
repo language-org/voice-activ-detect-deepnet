@@ -191,7 +191,7 @@ if __name__ == "__main__":
     OUT_ACTIVATION = "sigmoid"
     LOSS = "categorical_crossentropy" 
     OPTIM = "adam"
-    EPOCH = 5
+    EPOCH = 1
     BATCH_SIZE = 1
     VERBOSE = 2
 
