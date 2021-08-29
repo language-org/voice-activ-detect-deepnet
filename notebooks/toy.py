@@ -152,6 +152,11 @@ if __name__ == "__main__":
     SPLIT_FRAC = 0.5
     MODEL_SEED = 0
     OUT_ACTIVATION = "sigmoid"
+    LOSS = "categorical_crossentropy" 
+    OPTIM = "adam"
+    EPOCH = 5
+    BATCH_SIZE = 1
+    VERBOSE = 2
 
     # ETL --------------------------------------------
 
@@ -206,3 +211,7 @@ if __name__ == "__main__":
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.GRU(4))
     model.add(tf.keras.layers.Dense(N_CLASSES, activation=OUT_ACTIVATION))
+    
+    # compile and train train
+    model.compile(loss=LOSS, optimizer=OPTIM)
+    model.fit(X_train, Y_train, epochs=EPOCH, batch_size=BATCH_SIZE, verbose=VERBOSE)
