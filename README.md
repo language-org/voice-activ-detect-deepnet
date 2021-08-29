@@ -54,6 +54,11 @@ git push -u origin master
 
 * We will keep track of our commit and branch workflow with `git-graph` ([TODO] add snapshot of commit DAG)
 
+# Build project
+
+```bash
+bash setup.sh
+```
 
 # Dataset
 
