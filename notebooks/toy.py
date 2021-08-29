@@ -12,6 +12,7 @@ import os
 import scipy.io.wavfile
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 
 # [TODO]: add to config
 AUDIO_FILE = os.path.abspath("data/01_raw/vad_data/19-198-0003.wav")
@@ -132,7 +133,8 @@ if __name__ == "__main__":
 
     # preprocessing
     TIMESTEPS = 1
-    
+    N_CLASSES = 2
+
     # ETL --------------------------------------------
 
     # read and sync audio and labels
@@ -165,6 +167,7 @@ if __name__ == "__main__":
     # 3D input (batch, timestep, feature ?)
     # Works for LSTM, GRU and BiLSTM
     """
-    
     X, Y = DataEng.reshape_inputs(ts, Y, timesteps=TIMESTEPS)
     
+    # format labels
+    Y = tf.keras.utils.to_categorical(Y, N_CLASSES)
