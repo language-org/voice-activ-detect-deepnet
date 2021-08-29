@@ -89,6 +89,42 @@ class Etl:
             synced_label[span] = 1
         return audio, synced_label
 
+class DataEng:  
+
+    @staticmethod      
+    def reshape_inputs(X, Y, timesteps):
+        """[summary]
+
+        The LSTM network expects the input data (X) to be provided with a specific 
+        array structure in the form of: [samples, time steps, features].
+        
+        # [TODO]: add unit testing X and Y must be same length
+
+        Args:
+            X ([type]): [description]
+            look_back (int, optional): [description]. Defaults to 1.
+                rows: time
+                columns: features
+                values: audio signal
+
+        Returns:
+            [type]: 
+                3D tensorflow arrays   
+                    Dim 1: number of samples
+                    Dim 2: timesteps in the past
+                    Dim 3: feature: predictors
+        """
+
+        dataX, dataY = [], []
+        for i in range(len(X)-timesteps-1):
+            dataX.append(X[i:(i+timesteps), :])
+        X = np.array(dataX)
+
+        # drop Y's first n_look_back
+        # the n_look_back Y is used for the first prediction
+        # based on the n_look_back past X
+        Y = Y[timesteps+1:]
+        return X, Y
 
 
 if __name__ == "__main__":
@@ -110,3 +146,21 @@ if __name__ == "__main__":
     """
     ts = ts.astype('float32')
     Y = Y.astype('float32')
+
+    """
+    ------ MinMax Scale normalisation ------
+    e.g., LSTM are sensitive to the scale
+    particularly for sigmoid activ (defailt) or tanh
+    """
+    # scaler = MinMaxScaler(feature_range=(0, 1))
+    # dataset = scaler.fit_transform(dataset)
+    
+    """
+    ------ Reshaping ------ 
+    # reshape raw time series to net inputs
+    # 3D input (batch, timestep, feature ?)
+    # Works for LSTM, GRU and BiLSTM
+    """
+    
+    X, Y = DataEng.reshape_inputs(ts, Y, timesteps=TIMESTEPS)
+    
