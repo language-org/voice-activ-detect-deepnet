@@ -93,6 +93,19 @@ class Etl:
 class DataEng:  
 
     @staticmethod      
+    def split(X, Y, frac):
+
+        # [TODO]: add test that X_train.shape + X_test.shape = X.shape
+        # [TODO]: same for Y
+
+        n_train = int(np.round(X.shape[0]*frac))
+        X_train = X[:n_train, :]
+        X_test = X[n_train:, :]
+        Y_train = Y[:n_train]
+        Y_test = Y[n_train:]
+        return X_train, X_test, Y_train, Y_test
+        
+    @staticmethod      
     def reshape_inputs(X, Y, timesteps):
         """[summary]
 
@@ -130,10 +143,13 @@ class DataEng:
 
 if __name__ == "__main__":
 
-
+    # PARAMETERS --------------------------------------------
     # preprocessing
     TIMESTEPS = 1
     N_CLASSES = 2
+
+    # mdoel
+    SPLIT_FRAC = 0.5
 
     # ETL --------------------------------------------
 
@@ -171,3 +187,9 @@ if __name__ == "__main__":
     
     # format labels
     Y = tf.keras.utils.to_categorical(Y, N_CLASSES)
+
+    """
+    ------ Split train/test ------     
+    """    
+    X_train, X_test, Y_train, Y_test = DataEng.split(X, Y, frac=SPLIT_FRAC)
+
