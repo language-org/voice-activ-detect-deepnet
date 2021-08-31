@@ -1,0 +1,9 @@
+
+
+DATA_ENG:
+  LABEL: False
+  REDUCE_TRAIN: False
+  TIMESTEPS: 1
+  N_CLASSES: 2
+  RESOLUTION: float16
+TEST:

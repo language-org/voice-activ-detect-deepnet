@@ -1,0 +1,27 @@
+
+
+DATA_ENG:
+  TIMESTEPS: 1 #(320 is 20 ms at 16KHZ)
+  N_CLASSES: 2
+  REDUCE_TRAIN: True
+  TR_SAMPLE: 0.2 # training undersampling
+  SPLIT_FRAC: 0.7
+  LABEL: True
+  RESOLUTION: float16
+
+TEST: # [TODO] change key - confusing with Test set
+  SHUFFLE_LABEL: False # must be false: random audio-label mapping
+  ALL_SPEECH: False # must be false: random audio-label mapping
+  NO_SPEECH: False # must be false: random audio-label mapping  
+
+TRAIN:
+  VERBOSE: 2
+  MODEL_SEED: 0
+  N_GRU: [1] # [1,2]
+  VAL_FRAC: 0.6
+  OUT_ACTIVATION: "sigmoid"
+  LOSS: "categorical_crossentropy"
+  OPTIM: "adam"
+  EPOCH: 7
+  BATCH_SIZE: 1
+  METRICS: ["Accuracy", "Precision", "Recall"]

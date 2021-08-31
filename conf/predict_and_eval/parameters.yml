@@ -1,0 +1,12 @@
+
+
+DATA_ENG:
+  LABEL: True
+  REDUCE_TRAIN: False
+  TIMESTEPS: 1
+  N_CLASSES: 2
+  RESOLUTION: float16
+TEST:
+  SHUFFLE_LABEL: False # must be false: random audio-label mapping
+  ALL_SPEECH: False # must be false: random audio-label mapping
+  NO_SPEECH: False # must be false: random audio-label mapping  

@@ -1,0 +1,24 @@
+
+model:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/model
+  save_args:
+    save_format: tf
+
+prediction:
+  type: pandas.JSONDataSet
+  filepath: data/07_model_output/prediction.json
+  save_args:
+    orient: "records"
+
+metrics:
+  type: pandas.JSONDataSet
+  filepath: data/07_model_output/metrics.json
+  save_args:
+    orient: "records"
+
+confusion:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/confusion.csv
+  save_args:
+    index: True

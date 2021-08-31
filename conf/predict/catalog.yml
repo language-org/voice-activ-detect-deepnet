@@ -1,0 +1,13 @@
+
+model:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/model
+  save_args:
+    save_format: tf
+
+prediction:
+  type: pandas.JSONDataSet
+  filepath: data/07_model_output/prediction.json
+  save_args:
+    orient: "records"
+    lines: True

@@ -1,0 +1,6 @@
+
+model:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/model
+  save_args:
+    save_format: tf
