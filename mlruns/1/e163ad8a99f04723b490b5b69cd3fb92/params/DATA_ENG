@@ -1,0 +1,1 @@
+{'TIMESTEPS': 1, 'N_CLASSES': 2, 'REDUCE_TRAIN': True, 'TR_SAMPLE': 0.2, 'SPLIT_FRAC': 0.7, 'LABEL': True, 'RESOLUTION': 'float16'}

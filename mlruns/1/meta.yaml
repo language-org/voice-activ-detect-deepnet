@@ -1,0 +1,4 @@
+artifact_location: file:///Users/steeve_laquitaine/Desktop/vad_ghost/mlruns/1
+experiment_id: '1'
+lifecycle_stage: active
+name: vad
