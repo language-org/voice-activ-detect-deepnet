@@ -11,14 +11,14 @@ kedro-telemetry~=0.1.0
 nbstripout~=0.4
 pytest-cov~=2.5
 pytest-mock>=1.7.1, <2.0
-pytest~=6.2
+pytest~=6.2                 # unit testing
 wheel>=0.35, <0.37
 prompt-toolkit==2.0.10
-scipy
-pandas
-matplotlib
-scikit-learn
-tensorflow
-kedro-viz
-kedro-mlflow
-pyyaml
+scipy                       # etl and data wrangling
+pandas                      # etl and data wrangling
+scikit-learn                # preprocessing and classical ML
+tensorflow                  # deep learning
+kedro-viz                   # pipeline viz
+kedro-mlflow                # experiment tracking
+pyyaml                      # config
+matplotlib                  # data viz

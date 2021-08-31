@@ -302,7 +302,9 @@ markupsafe==2.0.1
     #   jinja2
     #   mako
 matplotlib==3.3.4
-    # via -r /Users/steeve_laquitaine/Desktop/vad/src/requirements.in
+    # via
+    #   -r /Users/steeve_laquitaine/Desktop/vad/src/requirements.in
+    #   seaborn
 mccabe==0.6.1
     # via flake8
 mistune==0.8.4
@@ -353,6 +355,7 @@ numpy==1.19.5
     #   pandas
     #   scikit-learn
     #   scipy
+    #   seaborn
     #   tensorboard
     #   tensorflow
 oauthlib==3.1.1
@@ -371,6 +374,7 @@ pandas==1.1.5
     # via
     #   -r /Users/steeve_laquitaine/Desktop/vad/src/requirements.in
     #   mlflow
+    #   seaborn
 pandocfilters==1.4.3
     # via nbconvert
 parso==0.8.2
@@ -513,6 +517,9 @@ scipy==1.5.4
     # via
     #   -r /Users/steeve_laquitaine/Desktop/vad/src/requirements.in
     #   scikit-learn
+    #   seaborn
+seaborn==0.11.2
+    # via -r /Users/steeve_laquitaine/Desktop/vad/src/requirements.in
 semver==2.13.0
     # via kedro-viz
 send2trash==1.8.0
