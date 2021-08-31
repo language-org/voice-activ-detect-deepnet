@@ -5,6 +5,7 @@ isort~=5.0
 jupyter~=1.0
 jupyter_client>=5.1, <7.0
 jupyterlab~=3.0
+jupyter_contrib_nbextensions
 kedro==0.17.4
 kedro-telemetry~=0.1.0
 nbstripout~=0.4
@@ -12,8 +13,12 @@ pytest-cov~=2.5
 pytest-mock>=1.7.1, <2.0
 pytest~=6.2
 wheel>=0.35, <0.37
+prompt-toolkit==2.0.10
 scipy
 pandas
 matplotlib
 scikit-learn
 tensorflow
+kedro-viz
+kedro-mlflow
+pyyaml
