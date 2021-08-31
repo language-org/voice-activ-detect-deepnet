@@ -1,0 +1,1 @@
+kedro run --to-nodes=sync_audio_and_label --pipeline=data_eng
