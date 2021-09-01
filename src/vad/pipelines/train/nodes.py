@@ -8,6 +8,7 @@ from tensorflow.keras.callbacks import TensorBoard
 import time
 
 from tensorboard.plugins.hparams import api as hp
+from tensorflow.python.ops.gen_data_flow_ops import BarrierReadySize
 from vad.pipelines.evaluate.nodes import Validation
 import yaml
 from kedro.config import ConfigLoader
@@ -49,6 +50,7 @@ def train_and_log(
     BATCH_SIZE = params_train["BATCH_SIZE"]
     VERBOSE = params_train["VERBOSE"]
     VAL_FRAC = params_train["VAL_FRAC"]
+    BIAS = params_train["BIAS"]
     N_CLASSES = params_data_eng["N_CLASSES"]
 
     # set seed for reproducibility
@@ -78,10 +80,17 @@ def train_and_log(
         # log training metrics
         scalar_clb = log_train_metrics_in_tb(log_dir=f"{TB_DIR}{tb_run}/train", freq=1)
 
+        # calculate bias to compensate label bias
+        bias = make_bias(train_label, BIAS)
+
         # create the model architecture
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.GRU(4))
-        model.add(tf.keras.layers.Dense(N_CLASSES, activation=OUT_ACTIVATION))
+        model.add(
+            tf.keras.layers.Dense(
+                N_CLASSES, activation=OUT_ACTIVATION, bias_initializer=bias
+            )
+        )
 
         # compile and train the model
         model.compile(loss=LOSS, optimizer=OPTIM, metrics=METRICS)
@@ -144,6 +153,14 @@ def train_and_log(
     best_model = models[ix_max]
     print(time.time() - tic, "secs")
     return best_model
+
+
+def make_bias(train_label, BIAS):
+    bias = 0
+    if BIAS:
+        noise, speech = np.bincount(train_label[:, 1].astype(int))
+        bias = np.log([speech / noise])
+    return tf.keras.initializers.Constant(bias)
 
 
 def test(model, test_audio):

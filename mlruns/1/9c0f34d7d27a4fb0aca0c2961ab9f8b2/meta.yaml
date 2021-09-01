@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/steeve_laquitaine/Desktop/vad_ghost/mlruns/1/9c0f34d7d27a4fb0aca0c2961ab9f8b2/artifacts
+end_time: 1630502540554
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+name: ''
+run_id: 9c0f34d7d27a4fb0aca0c2961ab9f8b2
+run_uuid: 9c0f34d7d27a4fb0aca0c2961ab9f8b2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1630501593765
+status: 3
+tags: []
+user_id: steeve_laquitaine

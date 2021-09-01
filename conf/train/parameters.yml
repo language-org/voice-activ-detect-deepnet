@@ -1,7 +1,7 @@
 
 
 DATA_ENG:
-  TIMESTEPS: 1 #(320 is 20 ms at 16KHZ)
+  TIMESTEPS: 10 #(320 is 20 ms at 16KHZ)
   N_CLASSES: 2
   REDUCE_TRAIN: True
   TR_SAMPLE: 0.2 # training undersampling
@@ -19,7 +19,8 @@ TRAIN:
   MODEL_SEED: 0
   N_GRU: [1] # [1,2]
   VAL_FRAC: 0.6
-  OUT_ACTIVATION: "sigmoid"
+  OUT_ACTIVATION: "softmax"
+  BIAS: True
   LOSS: "categorical_crossentropy"
   OPTIM: "adam"
   EPOCH: 7

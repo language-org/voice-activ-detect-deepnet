@@ -22,3 +22,4 @@ kedro-viz                   # pipeline viz
 kedro-mlflow                # experiment tracking
 pyyaml                      # config
 matplotlib                  # data viz
+ipdb
