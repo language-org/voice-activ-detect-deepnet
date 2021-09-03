@@ -1,16 +1,16 @@
+# author: steeve LAQUITAINE
+
 import os
 import scipy.io.wavfile
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-
-# from tensorflow import keras
 from kedro.config import ConfigLoader
 import yaml
-from kedro.framework.session import get_current_session
 import random
+from typing import Dict, Any
 
-# get run config
+# load the run's configuration
 with open("config.yml") as conf:
     config = yaml.load(conf)
 pipeline = config["run"]["env"]
@@ -19,7 +19,7 @@ globals = conf_loader.get("globals*", "globals*/**")
 catalog = conf_loader.get("catalog*", "catalog*/**")
 params = conf_loader.get("parameters*", "parameters*/**")
 
-# get data path
+# get the audio and label file's path from config. for loading
 AUDIO_FILE = os.path.abspath(globals["data_path"])
 if params["DATA_ENG"]["LABEL"]:
     LABEL_FILE = os.path.abspath(globals["label_path"])
@@ -27,22 +27,17 @@ if params["DATA_ENG"]["LABEL"]:
 
 class Etl:
     @staticmethod
-    def read_X():
-        """Load audio, convert to time series and calculate metadata (length..)
+    def read_X() -> Dict[str, Any]:
+        """Load a .wav audio, convert it to time series and
+        calculate some audio properties (length..)
 
-        [TODO]: return audio descriptive metadata
-
-        returns sampling rate:
-        resolution ? in bits
-        nb of channels ?
-
-        Args:
-            flag ([type]): [description]
-                audio: 2D N x 1 array
+        Returns:
+            (dict): loaded audio with main keys:
+                "audio":
+                    "data": audio time series
+                    "metadata": audio properties such as "sample rate",..
         """
-        sample_rate, data = scipy.io.wavfile.read(
-            AUDIO_FILE
-        )  # File assumed to be in the same directory
+        sample_rate, data = scipy.io.wavfile.read(AUDIO_FILE)
         sample_size = len(data)
         time_unit = 1 / sample_rate
         duration_in_sec = time_unit * len(data)
@@ -62,13 +57,17 @@ class Etl:
         }
 
     @staticmethod
-    def load_Y(params):
-        """Load Labels use create time series based on audio metadata
-        use sampling rate
-        calculate resolution in bits from labels start_time and end_time data
+    def load_Y(params: Dict[str, Any]) -> pd.DataFrame:
+        """Load labels from a .json file
 
         Args:
-            flag ([type]): [description]
+            params (Dict): dictionary of parameters containing
+                the key "LABEL" associated with a boolean value
+                    True:  load label
+                    False: do not load label
+
+        Returns:
+            (pd.DataFrame): a dataframe of label interval start and end times
         """
         if params["LABEL"]:
             return pd.read_json(LABEL_FILE)
@@ -76,7 +75,23 @@ class Etl:
             return []
 
     @staticmethod
-    def sync_audio_and_labels(audio, label):
+    def sync_audio_and_labels(
+        audio: Dict[str, Any], label: pd.DataFrame
+    ) -> Dict[str, Any]:
+        """Synchronise an audio and its labels by creating two
+        same length time series with a value per timestamp
+
+        Args:
+            data (Dict[str, Any]): contains to main keys:
+                "audio":
+                    "data": audio time series
+                    "metadata": audio properties such as "sample rate",..
+            label ([type]): [description]
+
+        Returns:
+            (Dict[str, Any]): data dictionary updated with a "label”
+                containing the audio labels converted to a time series
+        """
         # get data
         data = audio["audio"]["data"]
         time_unit = audio["audio"]["metadata"]["time_unit"]
@@ -105,7 +120,7 @@ class Etl:
         return audio
 
     @staticmethod
-    def test_on_label(audio, params):
+    def test_on_label(audio: Dict[str, Any], params: Dict[str, bool]) -> Dict[str, Any]:
         if "label" in audio:
             sample_size = len(audio["label"])
             if params["SHUFFLE_LABEL"]:
@@ -120,8 +135,22 @@ class Etl:
 
 class DataEng:
     @staticmethod
-    def split_train_test(data, params):
+    def split_train_test(
+        data: Dict[str, Any],
+        params: Dict[str, Any],
+    ) -> np.ndarray:
+        """Split the dataset in to train and test set for a simple cross-validation
 
+        Args:
+            data (Dict[str, Any]): contains to main keys:
+                "audio":
+                    "data": audio time series
+                "label": time series of labels (0 and 1)
+            params (Dict[str, Any]): [description]
+
+        Returns:
+            np.ndarray: [description]
+        """
         # [TODO]: test that X_train.shape + X_test.shape = X.shape
         # [TODO]: test same for Y
 

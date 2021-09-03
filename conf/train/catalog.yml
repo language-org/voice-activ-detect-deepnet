@@ -3,4 +3,4 @@ model:
   type: tensorflow.TensorFlowModelDataset
   filepath: data/06_models/model
   save_args:
-    save_format: tf
+    save_format: tf # serialize the model in tensorflow savedModel format

@@ -1,28 +1,30 @@
 
 
 DATA_ENG:
-  TIMESTEPS: 10 #(320 is 20 ms at 16KHZ)
+  TIMESTEPS: 10         #(320 is 20 ms at 16KHZ)
   N_CLASSES: 2
   REDUCE_TRAIN: True
-  TR_SAMPLE: 0.2 # training undersampling
+  TR_SAMPLE: 0.2        # training undersampling
   SPLIT_FRAC: 0.7
   LABEL: True
   RESOLUTION: float16
 
-TEST: # [TODO] change key - confusing with Test set
-  SHUFFLE_LABEL: False # must be false: random audio-label mapping
-  ALL_SPEECH: False # must be false: random audio-label mapping
-  NO_SPEECH: False # must be false: random audio-label mapping  
+TEST:                   # [TODO] change key - confusing with Test set
+  SHUFFLE_LABEL: False  # must be false: random audio-label mapping
+  ALL_SPEECH: False     # must be false: random audio-label mapping
+  NO_SPEECH: False      # must be false: random audio-label mapping  
 
 TRAIN:
+  NAME: MIN_SPEECH
   VERBOSE: 2
   MODEL_SEED: 0
   N_GRU: [1] # [1,2]
   VAL_FRAC: 0.6
   OUT_ACTIVATION: "softmax"
   BIAS: True
-  LOSS: "categorical_crossentropy"
+  LOSS: MinSpeechLoss # "categorical_crossentropy"
+  # LOSS: CategoricalCrossentropy
   OPTIM: "adam"
-  EPOCH: 7
+  EPOCH: 1
   BATCH_SIZE: 1
-  METRICS: ["Accuracy", "Precision", "Recall"]
+  METRICS: ["Recall", "Accuracy", "Precision"]
