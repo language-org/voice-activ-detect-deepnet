@@ -17,15 +17,15 @@ date: 28/08/2021
 * `Kedro`: standardize codebase
 * `logging`: logging
 
-* Experiment tracking & reproducibility
+* Experiment tracking & reproducibility:  
   * `mlflow`: pipeline parameters & model experiment tracking
   * `Tensorboard`: model experiment inspection & optimization
 
-* readability
+* Readability:  
   * `black`: codebase formatting
   * `pylint`: codebase linting
 
-* test coverage
+* Test coverage:  
   * `pytest`: unit-tests
 
 ## Setup
@@ -47,11 +47,13 @@ and collaboration.
   * develop branch would be our `integration` branch (for continuous integration and testing)
 * I kept track of my commit and branch workflow with `git-graph` ([TODO] add snapshot of commit DAG)
 
-```
-git clone ...
+```bash
+git clone https://github.com/slq0/vad_deepnet.git
 ```
 
 ### Build & install the dependencies
+
+Run this bash script to build and install the project's dependencies:  
 
 ```bash
 bash setup.sh
@@ -61,13 +63,15 @@ bash setup.sh
 
 ### Train
 
-Training:
+Run the training pipeline:
 
 ```bash
 kedro run --pipeline train --env train
 ```
 
 ### Inference
+
+Run the inference pipeline:
 
 ```bash
 kedro run --pipeline predict --env predict
@@ -77,21 +81,21 @@ kedro run --pipeline predict --env predict
 
 ## Tensorboad
 
-The model runs are logged in `tbruns/`
+The model runs are logged in `tbruns/`.
 
 ```bash
 tensorboard --logdir tbruns
 # http://localhost:6006/
 ```
 
-[TODO]: add plot of best model's architecture
-
 ## Mlflow
 
-I used mlflow for experiment and run tracking. The logs are stored in `mlruns/`.
+I used mlflow to track experiments and tested hyperparameter runs. 
+The logs are stored in `mlruns/`.
 
-```
+```bash
 kedro mlflow ui --env train --host 127.0.0.1 --port 6007
+# http://localhost:6007/
 ```
 
 ## kedro-viz
@@ -104,6 +108,8 @@ kedro viz
 ```
 
 # Testing
+
+Run unit-tests on the code base:
 
 ```bash
 pytest src/tests/test.py
@@ -123,7 +129,7 @@ speech dataset by adding noisy speech data created by summing speech and noise d
 
 # Report 
 
-Report formatting:  
+Format the report:  
 
 - The report has collapsible table of content (see in preview for mac and adobe reader on windows)
 
