@@ -69,6 +69,7 @@ def train_and_log(
     OUT_ACTIVATION = params_train["OUT_ACTIVATION"]
     METRICS = params_train["METRICS"]
     LOSS = params_train["LOSS"]
+    LABEL_SMOOTHING = params_train["LABEL_SMOOTHING"]
     OPTIM = params_train["OPTIM"]
     EPOCH = params_train["EPOCH"]
     BATCH_SIZE = params_train["BATCH_SIZE"]
@@ -105,7 +106,14 @@ def train_and_log(
         )
 
         # compile
-        model.compile(loss=eval(f"{LOSS}()"), optimizer=OPTIM, metrics=METRICS)
+        if MODEL == "BASIC":
+            model.compile(
+                loss=eval(f"{LOSS}(label_smoothing={LABEL_SMOOTHING})"),
+                optimizer=OPTIM,
+                metrics=METRICS,
+            )
+        elif MODEL == "MIN_SPEECH":
+            model.compile(loss=eval(f"{LOSS}()"), optimizer=OPTIM, metrics=METRICS)
 
         # train the model
         model.fit(
