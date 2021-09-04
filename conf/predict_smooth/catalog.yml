@@ -1,0 +1,20 @@
+# author: steeve LAQUITAINE
+# purpose: 
+#   list and track the pipelines'
+#   datasets, models, predictions to read 
+#   and write locally
+
+model:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/model
+  save_args:
+    save_format: tf
+  load_args:
+    compile: False      # False to circumvent the loss function in inference
+  
+prediction:
+  type: pandas.JSONDataSet
+  filepath: data/07_model_output/prediction_smooth.json
+  save_args:
+    orient: "records"
+    lines: True

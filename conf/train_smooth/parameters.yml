@@ -27,7 +27,7 @@ TEST:
 TRAIN:
   NAME: BASIC                     # BASIC or MIN_SPEECH
   LOSS: CategoricalCrossentropy   # MinSpeechLoss of CategoricalCrossentropy
-  LABEL_SMOOTHING: 0
+  LABEL_SMOOTHING: 0.5
   VERBOSE: 2
   MODEL_SEED: 0
   N_GRU: [1] 
