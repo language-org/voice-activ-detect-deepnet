@@ -1,29 +1,34 @@
 # author: steeve LAQUITAINE
+# purpose:
+#   module that contains functions to train models
+# usage:
+#
+#   from vad.pipelines.train.nodes import train_and_log
 
-import numpy as np
-import tensorflow as tf
+import time
 from datetime import datetime
+import numpy as np
 import pandas as pd
 
-# from tensorflow import keras
-from tensorflow.keras.callbacks import TensorBoard
-import time
+# config
+from kedro.config import ConfigLoader
+from yaml.events import StreamEndEvent
 
+# tensorflow
+import tensorflow as tf
+from tensorflow.keras.callbacks import TensorBoard
 from tensorboard.plugins.hparams import api as hp
 from tensorflow.python.ops.gen_data_flow_ops import BarrierReadySize
+from tensorflow.keras.losses import CategoricalCrossentropy
+from tensorflow.keras.layers import TimeDistributed, GRU, Dense
+import tensorflow.keras.callbacks as C
+
+# my custom package
 from vad.pipelines.evaluate.nodes import Validation
 import yaml
-from kedro.config import ConfigLoader
+
+# tracking
 import mlflow
-import keras
-
-from tensorflow.keras.losses import CategoricalCrossentropy
-
-
-# Setup debugging
-# tf.debugging.experimental.enable_dump_debug_info(
-#     "tbruns/debug/", tensor_debug_mode="FULL_HEALTH", circular_buffer_size=-1
-# )
 
 # get run config
 with open("config.yml") as conf:
@@ -48,6 +53,13 @@ def train_and_log(
     params_data_eng: dict,
 ):
 
+    """Train the model and log the run's parameters to tensorboard and mlflow
+    The model is trained via cross-validation and tested on a left-out test set
+    of the audio data.
+
+    Returns:
+        [type]: the best trained model
+    """
     tic = time.time()
 
     # get parameters
@@ -71,22 +83,16 @@ def train_and_log(
     # create hyperparameter sets
     HP_N_GRU = hp.HParam("n_gru", hp.Discrete(N_GRU))
 
+    # loop over number of gru layers sets
     models_f1 = []
     models = []
-
-    # test hyperparameter sets
     for ix, n_gru in enumerate(HP_N_GRU.domain.values):
 
+        # track time
         t0 = time.time()
 
-        # print run configuration
-        hparams = {HP_N_GRU: n_gru}
-        date_time = datetime.now().strftime("%Y%m%d-%H%M%S")
-        tb_run = f"vad-{n_gru}-gru-{date_time}"
-        print("--- Starting trial: %s" % tb_run)
-        print({h.name: hparams[h] for h in hparams})
-
-        # log hyperparams & metrics
+        # print config and log hyperparams & metrics
+        tb_run, hparams = print_config(HP_N_GRU, n_gru)
         hp_clb = log_hparams_in_tb(log_dir=f"{TB_DIR}{tb_run}/hparams", hparams=hparams)
         scalar_clb = log_train_metrics_in_tb(log_dir=f"{TB_DIR}{tb_run}/train", freq=1)
 
@@ -95,17 +101,12 @@ def train_and_log(
 
         # create the model architecture
         model = init_model(
-            MODEL, n_classes=N_CLASSES, activation=OUT_ACTIVATION, bias=bias
+            MODEL, N_CLASSES=N_CLASSES, OUT_ACTIVATION=OUT_ACTIVATION, bias=bias
         )
-
-        # output = model.predict(train_audio)
 
         # compile
         model.compile(loss=eval(f"{LOSS}()"), optimizer=OPTIM, metrics=METRICS)
 
-        from ipdb import set_trace
-
-        set_trace()
         # train the model
         model.fit(
             train_audio,
@@ -115,19 +116,25 @@ def train_and_log(
             verbose=VERBOSE,
             validation_split=VAL_FRAC,
             callbacks=[
+                # checkpoint,  # monitor checkpoint
                 scalar_clb,  # log metrics
                 hp_clb,  # log hyperparams
             ],
         )
 
-        # describe the model
+        # print model's description
         model.summary()
 
         # INFERENCE ------------------------------------
         test_predictions = test(model, test_audio)
 
-        # eval model
-        perfs = Validation.evaluate(test_predictions, test_label[:, 1])
+        # evaluate the model on the left-out test set
+        # case test_label is shaped as (s samples, t timesteps, 2 OHE labels)
+        if test_label.ndim == 2:
+            test_label = test_label[:, 1]
+        elif test_label.ndim == 3:
+            test_label = test_label[:, -1, 1]
+        perfs = Validation.evaluate(test_predictions, test_label)
 
         # record models and their f1-score for comparison
         f1 = perfs["f1"].item()
@@ -138,46 +145,83 @@ def train_and_log(
         log_dir = f"{TB_DIR}{tb_run}/test"
         log_metrics_in_tb(perfs, log_dir=log_dir, step=n_gru)
 
-        # [TODO] log in tensorboard or mlflow
-        tf.keras.utils.plot_model(
-            model,
-            to_file="report/model_architecture.png",
-            show_shapes=True,
-            show_dtype=False,
-            show_layer_names=True,
-            rankdir="TB",
-            expand_nested=False,
-            dpi=96,
-            layer_range=None,
-        )
+        # save model's architecture
+        plot_model_architecture(model)
 
         # log pipeline's params in mlflow
         mlflow.log_param(key=f"tb_set_{ix}", value=f"{TB_DIR}{tb_run}")
         mlflow.log_param(key=f"duration_set_{ix}", value=time.time() - t0)
 
+    # get best model
     ix_max = np.argmax(models_f1)
     best_model = models[ix_max]
+
+    # print duration
     print(time.time() - tic, "secs")
     return best_model
 
 
-def get_bias(train_label, BIAS):
+def get_bias(train_label: np.ndarray, BIAS: bool) -> float:
+    """Calculate the prior bias that must be applied to the classification layer's softmax output
+     to compensate the class imbalance
+
+    Args:
+        train_label (np.ndarray):
+            (s samples, t timesteps, 1 feature) size training label time series
+            or (s samples, 1 feature) size training label time series
+        BIAS (bool): [description]
+
+    Returns:
+        float: [description]
+    """
+    # initialize the bias
     bias = 0
     if BIAS:
-        noise, speech = np.bincount(train_label[:, 1].astype(int))
-        bias = np.log([speech / noise])
+        # case train_label is 2 dimensions: (s samples, 1 label)
+        if train_label.ndim == 2:
+            noise, speech = np.bincount(train_label[:, 1].astype(int))
+            bias = np.log([speech / noise])
+        # case train_label is 3 dimensions: (s samples, t timesteps, l=2 (OHE labels))
+        if train_label.ndim == 3:
+            noise, speech = np.bincount(train_label[:, -1, 1].astype(int))
+            bias = np.log([speech / noise])
     return tf.keras.initializers.Constant(bias)
 
 
-def test(model, test_audio):
+def test(model, test_audio: np.ndarray) -> np.ndarray:
+    """Compute model predictions
 
+    Args:
+        model ([type]): a trained model
+        test_audio (np.ndarray): audio signal to label
+
+    Returns:
+        (np.nd.array): predicted labels
+    """
     # calculate label probabilities
     # make label predictions
     predictions_proba = model.predict(test_audio)
-    return np.argmax(predictions_proba, axis=1).astype(int)
+
+    # case prediction are shaped as (s samples, 2 OHE classes)
+    if predictions_proba.ndim == 2:
+        return np.argmax(predictions_proba, axis=1).astype(int)
+
+    # case prediction are shaped as (s samples, timesteps, 2 OHE classes)
+    elif predictions_proba.ndim == 3:
+        return np.argmax(predictions_proba[:, -1, :], axis=1).astype(int)
 
 
-def log_hparams_in_tb(log_dir, hparams):
+def log_hparams_in_tb(log_dir: StreamEndEvent, hparams):
+    """Log hyperparameters in tensorboard
+
+    Args:
+        log_dir (str): local logging path
+        hparams ([type]): hyperparameters
+
+    Returns:
+        [type]: [description]
+    """
+    # write parameters locally to log_dir
     writer = tf.summary.create_file_writer(log_dir)
     with writer.as_default():
         hp_clb = hp.KerasCallback(log_dir, hparams)
@@ -185,14 +229,30 @@ def log_hparams_in_tb(log_dir, hparams):
 
 
 def log_train_metrics_in_tb(log_dir, freq):
+    """Log training and validation metrics in tensorboard
+
+    Args:
+        log_dir (str): local logging path
+        freq ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    # write training metrics locally to log_dir
     writer = tf.summary.create_file_writer(log_dir)
     with writer.as_default():
         scalar_clb = TensorBoard(log_dir=log_dir, histogram_freq=freq)
     return scalar_clb
 
 
-def log_metrics_in_tb(perfs: pd.DataFrame, log_dir, step):
+def log_metrics_in_tb(perfs: pd.DataFrame, log_dir: str, step):
+    """Log performance metrics in tensorboard
 
+    Args:
+        perfs (pd.DataFrame): [description]
+        log_dir (str): [description]
+        step ([type]): [description]
+    """
     # convert to dict
     perfs = perfs.T.to_dict()[0]
 
@@ -206,67 +266,206 @@ def log_metrics_in_tb(perfs: pd.DataFrame, log_dir, step):
         tf.summary.scalar("test_FRR", perfs["false_rejection_rate"], step=step)
 
 
-def init_model(name, n_classes, activation, bias):
+def print_config(HP_N_GRU, n_gru):
+
+    # print run configuration
+    hparams = {HP_N_GRU: n_gru}
+    date_time = datetime.now().strftime("%Y%m%d-%H%M%S")
+    tb_run = f"vad-{n_gru}-gru-{date_time}"
+    print("--- Starting trial: %s" % tb_run)
+    print({h.name: hparams[h] for h in hparams})
+    return tb_run, hparams
+
+
+def plot_model_architecture(model):
+    """Save model architecture as .png file in report/
+
+    Args:
+        model (model): the trained model to plot and save
+    """
+
+    tf.keras.utils.plot_model(
+        model,
+        to_file="report/model_architecture.png",
+        show_shapes=True,
+        show_dtype=False,
+        show_layer_names=True,
+        rankdir="TB",
+        expand_nested=False,
+        dpi=96,
+        layer_range=None,
+    )
+
+
+def init_model(name: str, N_CLASSES: int, OUT_ACTIVATION: str, bias: float):
+    """Instantiate the model to train
+
+    Args:
+        name (str): the model name:
+            "BASIC" : basic model without VAD modification based on loss constrains
+            "MIN_SPEECH": vad model with a loss penalized based on the number of
+                minimum speech violations
+        N_CLASSES (int): number of labels to predict (1:"speech" and 0:"non-speech")
+        OUT_ACTIVATION (str): output layer's activation function, e.g.,  "softmax"
+        bias (float32): bias to apply to the output layer to compensate class label imbalance
+
+    Returns:
+        [type]: [description]
+    """
+    # case the simplest model is selected
     if name == "BASIC":
-        return VadNetModel(n_classes, activation, bias)
+        return VadNetModel(N_CLASSES, OUT_ACTIVATION, bias)
+
+    # case the model constrained by minimum speech is selected
     if name == "MIN_SPEECH":
-        return MinSpeechVadNetModel(n_classes, activation, bias)
+        return MinSpeechVadNetModel(N_CLASSES, OUT_ACTIVATION, bias)
 
 
-def repeat(y_true, y_pred):
-    return np.repeat(y_true[:, np.newaxis, :], y_pred.shape[1], axis=1)
+def _check_exists_interval(y_pred):
+
+    # get predictions
+    y_pred = tf.cast(tf.greater(y_pred[0, :-1, 1], 0.5), tf.float32)
+
+    # get starts and ends
+    diff1 = tf.subtract(y_pred[:-1], y_pred[1:])
+    starts = tf.where(diff1 == 1)
+    ends = tf.where(diff1 == -1)
+
+    # check if there is any interval
+    is_exist_start = tf.equal(tf.size(starts), 0)
+    is_exist_end = tf.equal(tf.size(ends), 0)
+    return is_exist_start, is_exist_end
+
+
+def count_violations(y_pred):
+
+    # set minimum speech time threshold
+    MIN_SPEECH = tf.constant(8, tf.int64)
+
+    # get model predictions
+    y_pred = tf.cast(tf.greater(y_pred[0, :-1, 1], 0.5), tf.float32)
+
+    # get speech interval starts & ends
+    diff1 = tf.subtract(y_pred[:-1], y_pred[1:])
+    start_times = tf.where(diff1 == 1) + tf.constant(1, dtype=tf.int64)
+    end_times = tf.where(diff1 == -1)
+    speech_time = end_times - start_times
+
+    # equate the loss penalty to the number of violations
+    count_violations = tf.cast(tf.math.less(speech_time, MIN_SPEECH), tf.float32)
+    penalty = tf.math.reduce_sum(count_violations)
+    return tf.cast(penalty, tf.float32)
 
 
 def get_penalty(y_pred):
-    first_deriv = np.diff(y_pred)
-    start_time = np.where(first_deriv == 1)[0] + 1
-    end_time = np.where(first_deriv == -1)[0]
-    speech_time = end_time - start_time
-    penalty = sum(speech_time < 3)
+    """Calculate the penalty for occurring minimum speech time violations.
+    + 1 is added to the loss for every violation
+
+    Args:
+        y_pred ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
+    # check if speech interval exists
+    is_exist_start, is_exist_end = _check_exists_interval(y_pred)
+
+    # case it exists calculate penalty if violation
+    penalty = tf.cond(
+        tf.logical_and(is_exist_start, is_exist_end),
+        lambda: count_violations(y_pred),
+        lambda: tf.convert_to_tensor(0, tf.float32),
+    )
     return penalty
 
 
 class MinSpeechLoss(tf.keras.losses.Loss):
+    """Loss penalized to enforce a minimum speech time"""
+
     def __init__(self):
+        """Instantiate loss constrained to enforce a minimum speech time"""
         super().__init__()
 
     def call(self, y_true, y_pred):
-        cce = tf.keras.losses.CategoricalCrossentropy()
-
         # replicate y_pred over timestep axis and calculate loss
-        y_true = tf.numpy_function(repeat, [y_true, y_pred], tf.float32)
-        loss = cce(y_true, y_pred)
+        cce = CategoricalCrossentropy()
+        cce_loss = cce(y_true, y_pred)
+        cce_loss = tf.convert_to_tensor(cce_loss)
 
-        # penalize min speech violations
-        penalty = tf.numpy_function(get_penalty, [y_pred], tf.float32)
-        return loss + penalty
+        # penalize minimum speech violations
+        minspeech_loss = get_penalty(y_pred)
+        return cce_loss + minspeech_loss
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
 
 class VadNetModel(tf.keras.Model):
+    """Basic Voice activity detection model"""
+
     def __init__(self, N_CLASSES, OUT_ACTIVATION, bias):
+        """Instantiate basic Voice activity detection model
+
+        Args:
+             N_CLASSES (int): number of labels to predict (1:"speech" and 0:"non-speech")
+             OUT_ACTIVATION (str): output layer's activation function, e.g.,  "softmax"
+             bias (float32): bias to apply to the output layer to compensate class label imbalance
+        """
         super(VadNetModel, self).__init__()
-        self.layer_1 = tf.keras.layers.GRU(units=4)
-        self.classifier = tf.keras.layers.Dense(
+
+        # instantiate 4 units GRU layer
+        self.layer_1 = GRU(units=4)
+
+        # instantiate classifier
+        self.classifier = Dense(
             N_CLASSES, activation=OUT_ACTIVATION, bias_initializer=bias
         )
 
     def call(self, inputs):
+        """Perform forward pass
+
+        Args:
+            inputs (..): model's input
+
+        Returns:
+            (..): model's output
+        """
         x = self.layer_1(inputs)
         return self.classifier(x)
 
 
 class MinSpeechVadNetModel(tf.keras.Model):
+    """Voice activity detection model with a loss penalty each time minimum speech is violated"""
+
     def __init__(self, N_CLASSES, OUT_ACTIVATION, bias):
+        """Instantiate Voice activity detection model constrained to enforce minimum speech
+        time
+
+        Args:
+            N_CLASSES (int): number of labels to predict (1:"speech" and 0:"non-speech")
+            OUT_ACTIVATION (str): output layer's activation function, e.g.,  "softmax"
+            bias (float32): bias to apply to the output layer to compensate class label imbalance
+        """
         super(MinSpeechVadNetModel, self).__init__()
 
-        self.layer_1 = tf.keras.layers.GRU(units=4, return_sequences=True)
-        self.classifier = tf.keras.layers.TimeDistributed(
-            tf.keras.layers.Dense(
-                N_CLASSES, activation=OUT_ACTIVATION, bias_initializer=bias
-            )
+        # instantiate 4 units GRU layer
+        self.layer_1 = GRU(units=4, return_sequences=True)
+
+        # instantiate classifier
+        self.classifier = TimeDistributed(
+            Dense(N_CLASSES, activation=OUT_ACTIVATION, bias_initializer=bias)
         )
 
     def call(self, inputs):
+        """Perform forward pass
+
+        Args:
+            inputs (..): model's input
+
+        Returns:
+            (..): model's output
+        """
         x = self.layer_1(inputs)
-        x = self.classifier(x)
-        return x
+        return self.classifier(x)

@@ -1,4 +1,8 @@
 
+# author: steeve LAQUITAINE
+# purpose: 
+#   list and track the pipelines'
+#   parameters 
 
 DATA_ENG:
   LABEL: False
@@ -7,3 +11,6 @@ DATA_ENG:
   N_CLASSES: 2
   RESOLUTION: float16
 TEST:
+TRAIN:
+  NAME: BASIC      # BASIC or MIN_SPEECH
+  LOSS: CategoricalCrossentropy   # MinSpeechLoss of CategoricalCrossentropy

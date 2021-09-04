@@ -37,7 +37,7 @@ def run_for_train(**kwargs):
             ),
             node(
                 func=DataEng.reshape_input_for_net,
-                inputs=["floated32", "params:DATA_ENG"],
+                inputs=["floated32", "params:DATA_ENG", "params:TRAIN"],
                 outputs="reshaped",
                 name="reshape_for_net",
             ),
@@ -97,7 +97,7 @@ def run_for_inference(**kwargs):
             ),
             node(
                 func=DataEng.reshape_input_for_net,
-                inputs=["floated32", "params:DATA_ENG"],
+                inputs=["floated32", "params:DATA_ENG", "params:TRAIN"],
                 outputs="prod_audio",
                 name="reshape_for_net",
             ),

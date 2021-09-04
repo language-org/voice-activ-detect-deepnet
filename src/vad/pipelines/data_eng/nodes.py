@@ -1,4 +1,9 @@
 # author: steeve LAQUITAINE
+# purpose:
+#   module that contains functions to load and engineer the datasets for modeling and inference
+# usage:
+#
+#   from vad.pipelines.data_eng.nodes import Etl
 
 import os
 import scipy.io.wavfile
@@ -26,6 +31,8 @@ if params["DATA_ENG"]["LABEL"]:
 
 
 class Etl:
+    """Loading pipeline"""
+
     @staticmethod
     def read_X() -> Dict[str, Any]:
         """Load a .wav audio, convert it to time series and
@@ -37,7 +44,10 @@ class Etl:
                     "data": audio time series
                     "metadata": audio properties such as "sample rate",..
         """
+        # read audio file
         sample_rate, data = scipy.io.wavfile.read(AUDIO_FILE)
+
+        # calculate some metadata
         sample_size = len(data)
         time_unit = 1 / sample_rate
         duration_in_sec = time_unit * len(data)
@@ -69,6 +79,8 @@ class Etl:
         Returns:
             (pd.DataFrame): a dataframe of label interval start and end times
         """
+        # case labels are required in downstream pipelines
+        # read label file
         if params["LABEL"]:
             return pd.read_json(LABEL_FILE)
         else:
@@ -92,16 +104,16 @@ class Etl:
             (Dict[str, Any]): data dictionary updated with a "label”
                 containing the audio labels converted to a time series
         """
-        # get data
+        # get audio data and its metadata
         data = audio["audio"]["data"]
         time_unit = audio["audio"]["metadata"]["time_unit"]
         sample_size = audio["audio"]["metadata"]["sample_size"]
 
-        # create timestamps
+        # create audio timestamps
         audio["audio"]["metadata"]["timestamp"] = np.arange(0, len(data), 1) * time_unit
 
         # case label exists
-        # synchronize labels with audio
+        # synchronize labels and audio
         if len(label) is not 0:
             synced_label = np.zeros((sample_size, 1))
             array = label.values
@@ -121,6 +133,16 @@ class Etl:
 
     @staticmethod
     def test_on_label(audio: Dict[str, Any], params: Dict[str, bool]) -> Dict[str, Any]:
+        """Apply some sanity checks on the training and inference pipeline
+        Args:
+            params (dict): parameters with the following keys:
+                "SHUFFLE_LABEL": labelled mapping to audio data is randomized
+                "ALL_SPEECH": all data points are labelled as speech
+                "NO_SPEECH": all data points are labelled as no speech
+        Returns:
+            (dict): modified audio labels
+        """
+
         if "label" in audio:
             sample_size = len(audio["label"])
             if params["SHUFFLE_LABEL"]:
@@ -134,6 +156,8 @@ class Etl:
 
 
 class DataEng:
+    """Data engineering pipeline"""
+
     @staticmethod
     def split_train_test(
         data: Dict[str, Any],
@@ -151,9 +175,6 @@ class DataEng:
         Returns:
             np.ndarray: [description]
         """
-        # [TODO]: test that X_train.shape + X_test.shape = X.shape
-        # [TODO]: test same for Y
-
         # get parameters
         FRAC = params["SPLIT_FRAC"]
 
@@ -162,7 +183,7 @@ class DataEng:
         label = data["label"]
         n_train = int(audio.shape[0] * FRAC)
 
-        # split
+        # split the datat set into a training and a test set
         train_audio = audio[:n_train, :]
         test_audio = audio[n_train:, :]
         train_label = []
@@ -173,7 +194,17 @@ class DataEng:
         return train_audio, test_audio, train_label, test_label
 
     @staticmethod
-    def set_resolution(synced, params):
+    def set_resolution(
+        synced: Dict[str, Any], params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Set the data resolution
+        Args:
+            synced
+            params
+        Returns:
+            (Dict[str, Any]): audio with the set resolution
+        """
+
         # get params
         RESOLUTION = params["RESOLUTION"]
         synced["audio"]["data"] = synced["audio"]["data"].astype("float32")
@@ -220,31 +251,54 @@ class DataEng:
         return data
 
     @staticmethod
-    def _reshape_label_for_net(data, params: dict):
+    def _reshape_label_for_net(
+        data, params_dataeng: dict, params_train: dict
+    ) -> Dict[str, Any]:
 
         # get data
         label = data["label"]
 
-        # get params
-        TIMESTEPS = params["TIMESTEPS"]
-        N_CLASSES = params["N_CLASSES"]
+        # get parameters
+        TIMESTEPS = params_dataeng["TIMESTEPS"]
+        N_CLASSES = params_dataeng["N_CLASSES"]
 
-        # drop initial n labels whic corresponds to the
-        # initial audio data used for prediction
-        data["label"] = label[TIMESTEPS + 1 :]
+        # reshape as audio (s samples, t timesteps, 1 feature)
+        # elif params_train["NAME"] == "MIN_SPEECH":
+        labelY = []
+        for i in range(len(label) - TIMESTEPS - 1):
+            labelY.append(label[i : (i + TIMESTEPS), :])
+        data["label"] = np.array(labelY)
+
+        # case basic model
+        # drop N first labels to match reshaped audio
+        if params_train["NAME"] == "BASIC":
+            data["label"] = label[TIMESTEPS + 1 :]
+
+        # one hot encode
         data["label"] = tf.keras.utils.to_categorical(data["label"], N_CLASSES)
         return data
 
     @staticmethod
-    def reshape_input_for_net(data, params: dict):
-        data = DataEng._reshape_audio_for_net(data, params)
+    def reshape_input_for_net(data, params_dataeng: dict, params_train: dict):
+        data = DataEng._reshape_audio_for_net(data, params_dataeng)
         if "label" in data:
-            data = DataEng._reshape_label_for_net(data, params)
+            data = DataEng._reshape_label_for_net(data, params_dataeng, params_train)
         return data
 
     @staticmethod
-    def reduce_train(train_audio, train_label, params: dict):
+    def reduce_train(
+        train_audio: np.ndarray, train_label: np.ndarray, params: dict
+    ) -> np.ndarray:
+        """Reduce the size of the training dataset
 
+        Args:
+            train_audio (np.ndarray): preprocessed audio
+            train_label (np.ndarray): loaded labels
+            params (dict): data engineering parameters (see parameters.yml)
+
+        Returns:
+            (np.ndarray): training audio and labels reduced in size
+        """
         # get parameters
         REDUCE = params["REDUCE_TRAIN"]
         TR_SAMPLE = params["TR_SAMPLE"]

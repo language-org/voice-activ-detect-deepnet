@@ -1,4 +1,10 @@
 
+# author: steeve LAQUITAINE
+# purpose: 
+#   list and track the pipelines'
+#   datasets, models, predictions to read 
+#   and write locally
+
 model:
   type: tensorflow.TensorFlowModelDataset
   filepath: data/06_models/model

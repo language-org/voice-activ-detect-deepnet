@@ -1,29 +1,38 @@
+# author: steeve LAQUITAINE
+# purpose: 
+#   list and track the pipelines'
+#   parameters
 
-
+# Parameters for the 
+# data engineering pipeline
 DATA_ENG:
-  TIMESTEPS: 10         #(320 is 20 ms at 16KHZ)
+  TIMESTEPS: 10         # 320 represents 20 ms at 16KHZ
   N_CLASSES: 2
   REDUCE_TRAIN: True
-  TR_SAMPLE: 0.2        # training undersampling
+  TR_SAMPLE: 0.2        # fraction of the training audio file used
   SPLIT_FRAC: 0.7
   LABEL: True
   RESOLUTION: float16
 
-TEST:                   # [TODO] change key - confusing with Test set
+# Parameters for testing
+# the training and inference
+# pipeline
+TEST:                   
   SHUFFLE_LABEL: False  # must be false: random audio-label mapping
   ALL_SPEECH: False     # must be false: random audio-label mapping
   NO_SPEECH: False      # must be false: random audio-label mapping  
 
+# Parameters for training 
+# the models
 TRAIN:
-  NAME: MIN_SPEECH
+  NAME: BASIC      # BASIC or MIN_SPEECH
+  LOSS: CategoricalCrossentropy   # MinSpeechLoss of CategoricalCrossentropy
   VERBOSE: 2
   MODEL_SEED: 0
-  N_GRU: [1] # [1,2]
+  N_GRU: [1] 
   VAL_FRAC: 0.6
   OUT_ACTIVATION: "softmax"
   BIAS: True
-  LOSS: MinSpeechLoss # "categorical_crossentropy"
-  # LOSS: CategoricalCrossentropy
   OPTIM: "adam"
   EPOCH: 1
   BATCH_SIZE: 1

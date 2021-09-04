@@ -7,6 +7,8 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 import pandas as pd
+from typing import Any, Dict
+import numpy as np
 
 
 class Validation:
@@ -22,8 +24,21 @@ class Validation:
         plt.show()
 
     @staticmethod
-    def reshape_label(prod_audio):
-        return prod_audio["label"][:, 1]
+    def reshape_label(prod_audio: Dict[str, Any]) -> np.ndarray:
+        """Reshape the labels
+
+        Args:
+            prod_audio (Dict[str, Any]): audio that must be labelled
+
+        Returns:
+            np.ndarray: [description]
+        """
+        # case labels are shaped as (s samples, 2 OHE classes)
+        if prod_audio["label"].ndim == 2:
+            return prod_audio["label"][:, 1]
+        # case label are shaped as (s samples, t timesteps, 2 OHE classes)
+        elif prod_audio["label"].ndim == 3:
+            return prod_audio["label"][:, -1, 1]
 
     @staticmethod
     def reshape_prediction(prediction: pd.DataFrame):
