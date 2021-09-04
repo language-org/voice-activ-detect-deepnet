@@ -1,3 +1,3 @@
 run:
-  env: train
-  pipeline: train
+  env: predict_and_eval
+  pipeline: predict_and_eval

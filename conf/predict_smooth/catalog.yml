@@ -6,7 +6,7 @@
 
 model:
   type: tensorflow.TensorFlowModelDataset
-  filepath: data/06_models/model
+  filepath: data/06_models/model_smooth
   save_args:
     save_format: tf
   load_args:

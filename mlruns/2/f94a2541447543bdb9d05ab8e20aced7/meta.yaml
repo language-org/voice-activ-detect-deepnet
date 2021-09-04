@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/steeve_laquitaine/Desktop/vad/mlruns/2/f94a2541447543bdb9d05ab8e20aced7/artifacts
+end_time: 1630785440274
+entry_point_name: ''
+experiment_id: '2'
+lifecycle_stage: active
+name: ''
+run_id: f94a2541447543bdb9d05ab8e20aced7
+run_uuid: f94a2541447543bdb9d05ab8e20aced7
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1630785351145
+status: 3
+tags: []
+user_id: steeve_laquitaine
