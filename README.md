@@ -174,6 +174,16 @@ have to implement more than one test. You can run unit-tests with:
 pytest src/tests/test_run.py
 ```
 
+
+# "vad" package's documentation (Sphynx)
+
+You can open the package's Sphynx documentation by opening `docs/build/html/index.html`
+in your web browser (double click on the file):  
+
+```bash
+kedro build-docs --open
+```
+
 # Perspectives 
 
 ## Data augmentation
