@@ -4,6 +4,20 @@ author: steeve LAQUITAINE
 
 date: 28/08/2021
 
+**Short description**: Voice activity detection is critical to reduce the 
+computational cost of continuously monitoring large volume of speech data 
+necessary to swiftly detect command utterances such as wakewords. My objective 
+was to code a Voice Activity Detector (VAD) with reasonable performances 
+(Low false rejection rate) based on a neural network within a week and with 
+low computing resources. I trained and tested the model on labelled audio data 
+containing speech from diverse speakers including male, female, synthetic, low 
+and low volume, slow and fast space speech properties. The dataset came from 
+LibriSpeech and was prepared and provided by SONOS. I used a variety of tools 
+to extract, preprocess and develop and test the model but I mostly relied on 
+Tensorflow advanced Subclassing api, tensorflow ops and Keras, 
+Tensorboard, Seaborn and the more classical matplotlib visualization tools to make 
+sense of the data, clean the data and inspect the inner workings of the model. 
+
 ## The full report 
 
 notebooks/report.pdf  
