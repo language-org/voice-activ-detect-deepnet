@@ -3,59 +3,6 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
 
-# person 19-198 - audio chunk 3 (same as train)
-#   - woman
-#   - human
-#   - loud voice
-#   - normal pace
-# data_path: data/01_raw/vad_data/19-198-0003.wav
-# label_path: data/01_raw/vad_data/19-198-0003.json
-
-# person 19-198 - audio chunk 4
-# data_path: data/01_raw/vad_data/19-198-0004.wav
-# label_path: data/01_raw/vad_data/19-198-0004.json
-
-# person 19-198 - audio chunk 12
-# data_path: data/01_raw/vad_data/19-198-0012.wav
-# label_path: data/01_raw/vad_data/19-198-0012.json
-
-# person 103-1240 - audio chunk 1 (different than train)
-#   - woman
-#   - human
-#   - loud voice
-#   - normal pace
-# data_path: data/01_raw/vad_data/103-1240-0001.wav
-# label_path: data/01_raw/vad_data/103-1240-0001.json
-
-# person 118-47824-0000 - audio chunk 0 (different than train)
-#   - man
-#   - human
-#   - loud voice
-#   - normal pace
-# data_path: data/01_raw/vad_data/118-47824-0000.wav
-# label_path: data/01_raw/vad_data/118-47824-0000.json
-
-# person 1263-141777-0000 - audio chunk 0 (different than train)
-#   - woman
-#   - synthetic
-#   - audibly low voice
-#   - normal pace
-# data_path: data/01_raw/vad_data/1263-141777-0000.wav
-# label_path: data/01_raw/vad_data/1263-141777-0000.json
-
-# person 1447-130551-0019 - audio chunk 0 (different than train)
-#   - woman
-#   - human
-#   - audibly low voice
-#   - normal pace
-# data_path: data/01_raw/vad_data/1447-130551-0019.wav
-# label_path: data/01_raw/vad_data/1447-130551-0019.json
-
-# person 1578-6379-0017 - audio chunk 17 (different than train)
-#   - woman
-#   - human
-#   - loud voice
-#   - speedy with little to no pause
 data_path: data/01_raw/vad_data/1578-6379-0017.wav
 label_path: data/01_raw/vad_data/1578-6379-0017.json
 LOG_DIR: tbruns/
