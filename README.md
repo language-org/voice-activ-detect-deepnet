@@ -174,9 +174,10 @@ speech dataset by adding noisy speech data created by summing speech and noise d
 
 # Report 
 
-Format the report:  
+The final report is `notebook/report.pdf` with a collapsible table of content 
+(see in preview for mac and adobe reader on windows)
 
-- The report has collapsible table of content (see in preview for mac and adobe reader on windows)
+To format the .ipynb report into a .pdf run in the terminal :  
 
 ```bash
 jupyter nbconvert notebooks/report.ipynb --to pdf --no-input
