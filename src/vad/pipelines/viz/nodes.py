@@ -1,4 +1,11 @@
-# from tensorflow import keras
+# author: steeve LAQUITAINE
+# purpose:
+#   module that contains functions to do visualisation
+# usage:
+#
+#   from vad.pipelines.viz.nodes import Viz
+
+
 from matplotlib import pyplot as plt
 
 

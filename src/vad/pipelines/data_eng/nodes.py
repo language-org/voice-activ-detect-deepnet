@@ -29,7 +29,6 @@ AUDIO_FILE = os.path.abspath(globals["data_path"])
 if params["DATA_ENG"]["LABEL"]:
     LABEL_FILE = os.path.abspath(globals["label_path"])
 
-
 class Etl:
     """Loading pipeline"""
 

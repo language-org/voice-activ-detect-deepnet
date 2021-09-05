@@ -61,7 +61,7 @@ bash setup.sh
 
 ## Run pipelines
 
-### Train
+Train the basic model:
 
 Run the training pipeline:
 
@@ -69,13 +69,18 @@ Run the training pipeline:
 kedro run --pipeline train --env train
 ```
 
-### Inference
-
-Run the inference pipeline:
+Run inference with the model:
 
 ```bash
 kedro run --pipeline predict --env predict
 ```
+
+Evaluate its performance metrics:
+
+```bash
+kedro run --pipeline predict_and_eval --env predict_and_eval
+```
+
 
 # Model inspection, tracking & optimization
 
@@ -98,7 +103,7 @@ kedro mlflow ui --env train --host 127.0.0.1 --port 6007
 # http://localhost:6007/
 ```
 
-## kedro-viz
+## Kedro-viz
 
 To keep track of the pipeline:
 

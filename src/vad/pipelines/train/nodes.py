@@ -115,6 +115,14 @@ def train_and_log(
         elif MODEL == "MIN_SPEECH":
             model.compile(loss=eval(f"{LOSS}()"), optimizer=OPTIM, metrics=METRICS)
 
+        # case minimum speech time is required (label modification method)
+        if "MIN_SPEECH_TIME" in params_train:
+            train_label = add_minimum_speech_time(train_label, params_train)
+
+        # case hangover is required
+        if "HANGOVER" in params_train:
+            train_label = add_hangover(train_label, params_train)
+
         # train the model
         model.fit(
             train_audio,
@@ -167,6 +175,80 @@ def train_and_log(
     # print duration
     print(time.time() - tic, "secs")
     return best_model
+
+
+def add_minimum_speech_time(train_label, params):
+
+    # get minimum speech time parameter
+    min_time = params["MIN_SPEECH_TIME"]
+
+    # get 1-D labels to simplify processing
+    if train_label.ndim == 2:
+        label_1D = train_label[:, 1]
+    elif train_label.ndim == 3:
+        label_1D = train_label[:, :, 1]
+
+    # get speech interval starts & ends
+    diff1 = label_1D[:-1] - label_1D[1:]
+    start_times = np.where(diff1 == 1)[0] + 1
+    end_times = np.where(diff1 == -1)[0]
+
+    # filter out speech events with duration below min_time
+    for start_time, end_time in zip(start_times, end_times):
+        if end_time - start_time < min_time:
+            label_1D[start_time:end_time] = 0
+
+    # update the labels
+    if train_label.ndim == 2:
+        train_label[:, 1] = label_1D
+        train_label[:, 0] = 1 - label_1D
+    elif train_label.ndim == 3:
+        train_label[:, :, 1] = label_1D
+        train_label[:, :, 0] = 1 - label_1D
+    return train_label
+
+
+def add_hangover(train_label, params):
+
+    # get parameters
+    hangover = params["HANGOVER"]
+
+    # get 1-D labels to simplify processing
+    if train_label.ndim == 2:
+        label_1D = train_label[:, 1]
+    elif train_label.ndim == 3:
+        label_1D = train_label[:, :, 1]
+    n_labels = len(label_1D)
+
+    # get speech interval starts & ends
+    diff1 = label_1D[:-1] - label_1D[1:]
+    start_times = np.where(diff1 == 1)[0] + 1
+    end_times = np.where(diff1 == -1)[0]
+
+    # add hangover
+    for start_time, end_time in zip(start_times, end_times):
+
+        # calculate new start and end times
+        new_start = start_time - hangover
+        new_end = start_time - hangover
+
+        # if they exist
+        if (new_start > 0) and (new_end < n_labels):
+
+            # prolong speech before
+            label_1D[new_start:start_time] = 1
+
+            # prolong speech after
+            label_1D[end_time:new_end] = 1
+
+    # update training labels
+    if train_label.ndim == 2:
+        train_label[:, 1] = label_1D
+        train_label[:, 0] = 1 - label_1D
+    elif train_label.ndim == 3:
+        train_label[:, :, 1] = label_1D
+        train_label[:, :, 0] = 1 - label_1D
+    return train_label
 
 
 def get_bias(train_label: np.ndarray, BIAS: bool) -> float:

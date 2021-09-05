@@ -1,8 +1,23 @@
+# author: steeve LAQUITAINE
+# purpose:
+#   module that contains the evaluation pipelines that are run by pipeline_registry.py
+#   when you call kedro run --pipeline ...
+#
+# usage:
+#
+#   from vad.pipelines.evaluate import pipeline
+
+
 from kedro.pipeline import Pipeline, node
 from vad.pipelines.evaluate.nodes import Validation
 
 
 def run(**kwargs):
+    """Pipeline run after an inference pipeline to get inference metrics
+
+    Returns:
+        (Pipeline): an inference pipeline graph
+    """
     return Pipeline(
         [
             node(

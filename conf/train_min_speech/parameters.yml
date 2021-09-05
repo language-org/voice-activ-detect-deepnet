@@ -1,0 +1,41 @@
+# author: steeve LAQUITAINE
+# purpose: 
+#   list and track the pipelines'
+#   parameters
+
+# Parameters for the 
+# data engineering pipeline
+DATA_ENG:
+  TIMESTEPS: 10         # 320 represents 20 ms at 16KHZ
+  N_CLASSES: 2
+  REDUCE_TRAIN: True
+  TR_SAMPLE: 0.2        # fraction of the training audio file used
+  SPLIT_FRAC: 0.7
+  LABEL: True
+  RESOLUTION: float16
+
+# Parameters for testing
+# the training and inference
+# pipeline
+TEST:                   
+  SHUFFLE_LABEL: False  # must be false: random audio-label mapping
+  ALL_SPEECH: False     # must be false: random audio-label mapping
+  NO_SPEECH: False      # must be false: random audio-label mapping  
+
+# Parameters for training 
+# the models
+TRAIN:
+  NAME: BASIC                     # BASIC or MIN_SPEECH
+  LOSS: CategoricalCrossentropy   # MinSpeechLoss of CategoricalCrossentropy
+  LABEL_SMOOTHING: 0
+  VERBOSE: 2
+  MODEL_SEED: 0
+  N_GRU: [1] 
+  VAL_FRAC: 0.6
+  OUT_ACTIVATION: "softmax"
+  BIAS: True
+  OPTIM: "adam"
+  EPOCH: 14
+  BATCH_SIZE: 1
+  METRICS: ["Recall", "Accuracy", "Precision"]
+  MIN_SPEECH_TIME: 16000                   # 160 is 100 ms silence enforced before and after speech

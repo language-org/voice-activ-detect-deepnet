@@ -1,0 +1,6 @@
+
+
+
+data_path: data/01_raw/vad_data/19-198-0003.wav
+label_path: data/01_raw/vad_data/19-198-0003.json
+LOG_DIR: tbruns/

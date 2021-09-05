@@ -1,1 +1,0 @@
-{'LABEL': True, 'REDUCE_TRAIN': False, 'TIMESTEPS': 10, 'N_CLASSES': 2, 'RESOLUTION': 'float16'}

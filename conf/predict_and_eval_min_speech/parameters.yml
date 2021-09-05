@@ -1,0 +1,19 @@
+
+# author: steeve LAQUITAINE
+# purpose: 
+#   list and track the pipelines'
+#   parameters
+
+DATA_ENG:
+  LABEL: True
+  REDUCE_TRAIN: False
+  TIMESTEPS: 10
+  N_CLASSES: 2
+  RESOLUTION: float16
+TEST:
+  SHUFFLE_LABEL: False # must be false: random audio-label mapping
+  ALL_SPEECH: False # must be false: random audio-label mapping
+  NO_SPEECH: False # must be false: random audio-label mapping  
+TRAIN:
+  NAME: BASIC      # BASIC or MIN_SPEECH
+  LOSS: CategoricalCrossentropy   # MinSpeechLoss of CategoricalCrossentropy

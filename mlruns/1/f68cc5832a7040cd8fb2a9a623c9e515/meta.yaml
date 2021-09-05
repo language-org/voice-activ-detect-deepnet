@@ -2,7 +2,7 @@ artifact_uri: file:///Users/steeve_laquitaine/Desktop/vad_ghost/mlruns/1/f68cc58
 end_time: 1630741884392
 entry_point_name: ''
 experiment_id: '1'
-lifecycle_stage: active
+lifecycle_stage: deleted
 name: ''
 run_id: f68cc5832a7040cd8fb2a9a623c9e515
 run_uuid: f68cc5832a7040cd8fb2a9a623c9e515

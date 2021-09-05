@@ -1,8 +1,23 @@
+# author: steeve LAQUITAINE
+# purpose:
+#   module that contains the data engineering pipelines that are run by pipeline_registry.py
+#   when you call kedro run --pipeline ...
+#
+# usage:
+#
+#   from vad.pipelines.data_eng import pipeline
+
+
 from kedro.pipeline import Pipeline, node
 from vad.pipelines.data_eng.nodes import Etl, DataEng
 
 
 def run_for_train(**kwargs):
+    """Pipeline run before running a training pipeline
+
+    Returns:
+        (Pipeline): an inference pipeline graph
+    """
     return Pipeline(
         [
             node(
@@ -63,6 +78,11 @@ def run_for_train(**kwargs):
 
 
 def run_for_inference(**kwargs):
+    """Pipeline run before running a inference pipeline
+
+    Returns:
+        (Pipeline): a inference pipeline graph
+    """
     return Pipeline(
         [
             node(

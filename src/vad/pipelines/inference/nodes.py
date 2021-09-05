@@ -1,3 +1,10 @@
+# author: steeve LAQUITAINE
+# purpose:
+#   module that contains functions to run inference
+# usage:
+#
+#   from vad.pipelines.inference.nodes import predict
+
 import numpy as np
 import pandas as pd
 from typing import Any, Dict

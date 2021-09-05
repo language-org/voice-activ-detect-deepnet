@@ -1,3 +1,11 @@
+# author: steeve LAQUITAINE
+# purpose:
+#   module that contains functions to evaluate inference
+# usage:
+#
+#   from vad.pipelines.evaluate.nodes import Validation
+
+
 from matplotlib import pyplot as plt
 from sklearn.metrics import (
     accuracy_score,
@@ -12,6 +20,8 @@ import numpy as np
 
 
 class Validation:
+    """Model performance validation class"""
+
     @staticmethod
     def plot_predictions(preds, Y_test, n_sample):
 
