@@ -40,6 +40,7 @@ You can get and run the codebase in 3 steps:
 git clone https://github.com/slq0/vad_deepnet.git
 cd vad_deepnet
 conda create -n vad python==3.6.13 
+conda activate vad
 pip install kedro==0.17.4  
 bash setup.sh
 ```
