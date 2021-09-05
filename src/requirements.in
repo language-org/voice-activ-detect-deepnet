@@ -1,5 +1,5 @@
-black==21.5b1
-flake8>=3.7.9, <4.0
+black==21.5b1           # formatting
+flake8>=3.7.9, <4.0     #
 ipython==7.10
 isort~=5.0
 jupyter~=1.0
@@ -14,13 +14,12 @@ pytest-mock>=1.7.1, <2.0
 pytest~=6.2                 # unit testing
 wheel>=0.35, <0.37
 prompt-toolkit==2.0.10
-scipy                       # etl and data wrangling
-pandas                      # etl and data wrangling
-scikit-learn                # preprocessing and classical ML
-tensorflow                  # deep learning
-kedro-viz                   # pipeline viz
-kedro-mlflow                # experiment tracking
-pyyaml                      # config
-matplotlib                  # data viz
-ipdb
-seaborn
+scipy==1.5.4                # etl and data wrangling
+pandas==1.1.5               # etl and data wrangling
+scikit-learn==0.24.2        # preprocessing and classical ML
+tensorflow==2.6.0           # deep learning
+kedro-viz==3.15.0           # pipeline viz
+kedro-mlflow==0.7.4         # experiment tracking
+pyyaml==5.4.1               # config
+matplotlib==3.3.4           # data viz
+seaborn==0.11.2             # data viz

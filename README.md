@@ -139,7 +139,7 @@ kedro viz
 Run unit-tests on the code base:
 
 ```bash
-pytest src/tests/test.py
+pytest src/tests/test_run.py
 ```
 
 # Perspectives 
