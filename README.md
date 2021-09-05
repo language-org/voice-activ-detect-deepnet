@@ -32,7 +32,7 @@ bash setup.sh
 
 2. Move the dataset to `vad_deepnet/data/01_raw/` 
   
-3. Run:
+3. Run basic model training (takes 30min) and predict-eval (20 secs):
 
 ```bash
 kedro run --pipeline train --env train
