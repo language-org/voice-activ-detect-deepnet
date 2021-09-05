@@ -7,26 +7,48 @@ date: 28/08/2021
 [TODO]: add table of content  
 [TODO]: add file structure  
 
-## Overview of tool stack
+## Train, inference & eval in 3 steps
 
-* `VSCODE`: coding in an integrated development environment
-  * `git-graph`: keep track of flow of commit and branches
-* `Conda`: isolate environment and manage dependencies
-* `Git`: code versioning
-* `Github`: centralize repo for collaboration
-* `Kedro`: standardize codebase
-* `logging`: logging
+You can get and run the codebase in 3 steps:
+
+1. Setup:
+
+```bash
+git clone https://github.com/slq0/vad_deepnet.git
+cd vad_deepnet
+conda create -n vad python==3.6.13 kedro==0.17.4
+bash setup.sh
+```
+
+2. Move the dataset to `vad_deepnet/data/01_raw/` 
+  
+3. Run:
+
+```bash
+kedro run --pipeline train --env train
+kedro run --pipeline predict_and_eval --env predict_and_eval
+```
+
+## Overview of tool stack used
+
+* Development:
+  * `VSCODE`: coding in an integrated development environment
+  * `Conda`: isolate environment and manage dependencies
+  * `Git`: code versioning
+  * `Github`: centralize repo for collaboration
+  * `Kedro`: standardize codebase
 
 * Experiment tracking & reproducibility:  
   * `mlflow`: pipeline parameters & model experiment tracking
   * `Tensorboard`: model experiment inspection & optimization
-
+  * `git-graph`: keep track of flow of commit and branches
+  
 * Readability:  
   * `black`: codebase formatting
   * `pylint`: codebase linting
 
 * Test coverage:  
-  * `pytest`: unit-tests
+  * `pytest`: minimal unit-tests
 
 ## Setup
 
