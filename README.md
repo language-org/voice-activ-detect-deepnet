@@ -4,8 +4,6 @@ author: steeve LAQUITAINE
 
 date: 28/08/2021
 
-[TODO]: add table of content  
-[TODO]: add file structure  
 
 ## The full report 
 
