@@ -9,6 +9,12 @@ date: 28/08/2021
 
 ## Train, inference & eval in 3 steps
 
+Prerequisites installations :
+
+You have:
+  - `conda 4.8.3` (`which conda` in a terminal).
+  - you have `Git 2.32.0`    
+
 You can get and run the codebase in 3 steps:
 
 1. Setup:
