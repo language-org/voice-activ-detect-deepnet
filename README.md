@@ -131,7 +131,9 @@ tensorboard --logdir tbruns
 
 ## Mlflow
 
-I used mlflow to track experiments and tested hyperparameter runs. 
+I used mlflow to track experiments and tested hyperparameter runs 
+(e.g., run duration). 
+
 The logs are stored in `mlruns/`.
 
 ```bash
