@@ -116,7 +116,11 @@ kedro run --pipeline predict_and_eval --env predict_and_eval
 
 # Model inspection, tracking & optimization
 
-## Tensorboad
+## Tensorboard
+
+Visualize layers' weights, biases across epochs, training and validation loss,
+performance metrics on validation, the model's conceptual and structural graph
+to dive into decreasing levels of abstraction.
 
 The model runs are logged in `tbruns/`.
 
