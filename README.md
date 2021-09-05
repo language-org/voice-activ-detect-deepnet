@@ -153,7 +153,8 @@ kedro viz
 
 # Testing
 
-Run unit-tests on the code base:
+Run unit-tests on the code base. I initialized unit-tests but did not
+have to implement more than one test. You can run unit-tests with:
 
 ```bash
 pytest src/tests/test_run.py
