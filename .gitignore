@@ -10,7 +10,11 @@ conf/local/**
 conf/**/*credentials*
 
 # ignore everything in the following folders
-data/**
+data/01_raw/**
+data/02_intermediate/**
+data/03_primary/**
+data/04_feature/**
+data/05_model_input/**
 logs/**
 
 # except their sub-folders
