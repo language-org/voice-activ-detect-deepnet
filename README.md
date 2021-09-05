@@ -4,7 +4,6 @@ author: steeve LAQUITAINE
 
 date: 28/08/2021
 
-
 ## The full report 
 
 notebooks/report.pdf  
@@ -61,7 +60,7 @@ kedro run --pipeline predict_and_eval --env predict_and_eval
 * Test coverage:  
   * `pytest`: minimal unit-tests
 
-## Setup
+## Setup break down
 
 ### Create a virtual environment
 
