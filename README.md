@@ -74,10 +74,10 @@ conda create -n vad python==3.6.13 kedro==0.17.4
 
 * I used a light version of the `Gitflow Workflow` methodology for code versioning 
 and collaboration.
-* Master branch will be our `production` branch
-* I created and move to develop branch and branch out a feature branch to start developing
-  * develop branch would be our `integration` branch (for continuous integration and testing)
-* I kept track of my commit and branch workflow with `git-graph` ([TODO] add snapshot of commit DAG)
+* A `Master` branch will be our `production` branch (final deployment):
+* I created and moved to a `Develop` branch and branched out a `feature` branch to start developing
+  * The `Develop` branch would hypothetically be an `integration` branch (for continuous integration and testing)
+* I kept track of my commits and the workflow of branches with `git-graph`
 
 ```bash
 git clone https://github.com/slq0/vad_deepnet.git
