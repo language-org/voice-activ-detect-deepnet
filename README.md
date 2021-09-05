@@ -143,7 +143,8 @@ kedro mlflow ui --env train --host 127.0.0.1 --port 6007
 
 ## Kedro-viz
 
-To keep track of the pipeline:
+To keep track of the pipeline and optimize it, I used Kedro-viz which
+described the pipelines with Directed Acyclic graphs:
 
 ```bash
 kedro viz
