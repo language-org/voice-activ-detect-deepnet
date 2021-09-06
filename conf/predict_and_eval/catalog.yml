@@ -17,7 +17,6 @@ prediction:
   filepath: data/07_model_output/prediction.json
   save_args:
     orient: "records"
-    lines: True
 
 metrics:
   type: pandas.JSONDataSet
